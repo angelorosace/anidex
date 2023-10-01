@@ -5,14 +5,24 @@ import (
 	"log"
 	"os"
 
+	DB "anidex_api/db"
+
 	"github.com/gofiber/fiber/v2"
 )
 
 func main() {
 
-	fmt.Println(os.Getenv("MYSQL_URL"))
+	// Initialize DB
+	db, err := DB.InitializeDB()
+	if err != nil {
+		log.Fatal(err)
+	} else {
+		fmt.Println("Connection with DB established!")
+	}
 
-	// initialize API
+	db.Exec("CREATE TABLE Test (ID int);")
+
+	// initialize API Service
 	fiberApp := fiber.New()
 
 	fiberApp.Get("/", func(c *fiber.Ctx) error {
