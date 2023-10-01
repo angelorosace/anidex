@@ -12,17 +12,17 @@ import (
 )
 
 type AppCredentials struct {
-	Type                string `json:"type" default:"service_account"`
+	Type                string `json:"type"`
 	ProjectId           string `json:"project_id"`
 	PrivateKeyId        string `json:"private_key_id"`
 	PrivateKey          string `json:"private_key"`
 	ClientEmail         string `json:"client_email"`
 	ClientId            string `json:"client_id"`
-	AuthUri             string `json:"auth_uri" default:"https://accounts.google.com/o/oauth2/auth"`
-	TokenURI            string `json:"token_uri" default:"https://oauth2.googleapis.com/token"`
-	AuthProviderCertUrl string `json:"auth_provider_x509_cert_url" default:"https://www.googleapis.com/oauth2/v1/certs"`
+	AuthUri             string `json:"auth_uri"`
+	TokenURI            string `json:"token_uri"`
+	AuthProviderCertUrl string `json:"auth_provider_x509_cert_url"`
 	ClientCertUrl       string `json:"client_x509_cert_url"`
-	UniverseDomain      string `json:"universe_domain" default:"googleapis.com"`
+	UniverseDomain      string `json:"universe_domain"`
 }
 
 func BuildApp(ctx context.Context) (*firebase.App, error) {
@@ -84,11 +84,16 @@ func buildAppCredentials() AppCredentials {
 	fmt.Println("Building App credentials")
 
 	return AppCredentials{
-		ProjectId:     os.Getenv("ProjectId"),
-		PrivateKeyId:  os.Getenv("PrivateKeyId"),
-		PrivateKey:    os.Getenv("GooglePrivateKey"),
-		ClientEmail:   os.Getenv("GoogleClientEmail"),
-		ClientId:      os.Getenv("GoogleClientId"),
-		ClientCertUrl: os.Getenv("ClientCertUrl"),
+		Type:                "service_account",
+		ProjectId:           os.Getenv("ProjectId"),
+		PrivateKeyId:        os.Getenv("PrivateKeyId"),
+		PrivateKey:          os.Getenv("GooglePrivateKey"),
+		ClientEmail:         os.Getenv("GoogleClientEmail"),
+		ClientId:            os.Getenv("GoogleClientId"),
+		ClientCertUrl:       os.Getenv("ClientCertUrl"),
+		AuthUri:             "https://accounts.google.com/o/oauth2/auth",
+		TokenURI:            "https://oauth2.googleapis.com/token",
+		AuthProviderCertUrl: "https://www.googleapis.com/oauth2/v1/certs",
+		UniverseDomain:      "googleapis.com",
 	}
 }
