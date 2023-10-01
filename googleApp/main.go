@@ -81,6 +81,9 @@ func buildClientOptions() (option.ClientOption, error) {
 }
 
 func buildAppCredentials() AppCredentials {
+
+	fmt.Println(os.Getenv("GooglePrivateKey"))
+
 	return AppCredentials{
 		Type:                "service_account",
 		ProjectId:           os.Getenv("ProjectId"),
