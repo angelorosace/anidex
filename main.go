@@ -21,8 +21,6 @@ func main() {
 	}
 	defer db.Close()
 
-	db.Exec("CREATE TABLE Test (ID int);")
-
 	// initialize API Service
 	fiberApp := fiber.New()
 
