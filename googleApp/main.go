@@ -32,6 +32,9 @@ func BuildApp(ctx context.Context) (*firebase.App, error) {
 		return &firebase.App{}, fmt.Errorf("Client Options could not be built: %v", err)
 	}
 
+	fmt.Sprintln("buildClientOptions")
+	fmt.Sprintln(opt)
+
 	conf := buildConfig()
 
 	app, err := firebase.NewApp(ctx, conf, opt)
@@ -77,6 +80,9 @@ func buildClientOptions() (option.ClientOption, error) {
 }
 
 func buildAppCredentials() AppCredentials {
+
+	fmt.Println("Building App credentials")
+
 	return AppCredentials{
 		ProjectId:     os.Getenv("ProjectId"),
 		PrivateKeyId:  os.Getenv("PrivateKeyId"),
