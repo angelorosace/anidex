@@ -10,7 +10,7 @@ import (
 
 func main() {
 
-	fmt.Println(os.Getenv("MySQL_URL"))
+	fmt.Println(os.Getenv("MYSQL_URL"))
 
 	// initialize API
 	fiberApp := fiber.New()
