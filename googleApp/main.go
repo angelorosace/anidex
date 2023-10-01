@@ -70,6 +70,7 @@ func buildClientOptions() (option.ClientOption, error) {
 		o = option.WithCredentialsFile("aindex_firebase_config.json")
 	} else {
 		appCredentials := buildAppCredentials()
+		fmt.Println(appCredentials)
 		p, err := json.Marshal(appCredentials)
 		if err != nil {
 			return nil, fmt.Errorf("App authentication failed: %v", err)
@@ -80,9 +81,6 @@ func buildClientOptions() (option.ClientOption, error) {
 }
 
 func buildAppCredentials() AppCredentials {
-
-	fmt.Println("Building App credentials")
-
 	return AppCredentials{
 		Type:                "service_account",
 		ProjectId:           os.Getenv("ProjectId"),
