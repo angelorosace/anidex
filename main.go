@@ -19,6 +19,7 @@ func main() {
 	} else {
 		fmt.Println("Connection with DB established!")
 	}
+	defer db.Close()
 
 	db.Exec("CREATE TABLE Test (ID int);")
 
