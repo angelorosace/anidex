@@ -81,6 +81,20 @@ func postAnimal(w http.ResponseWriter, r *http.Request) {
 
 }
 
+func getFiles(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Methods", "GET")
+
+	entries, err := os.ReadDir(os.Getenv("RAILWAY_VOLUME_MOUNT_PATH") + "/uploaded_images")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	for _, e := range entries {
+		fmt.Println(e.Name())
+	}
+}
+
 func setupRoutes(port string) {
 	if port == "" {
 		port = "4000"
@@ -88,6 +102,7 @@ func setupRoutes(port string) {
 
 	http.HandleFunc("/", getStatus)
 	http.HandleFunc("/animal", postAnimal)
+	http.HandleFunc("/getFiles", getFiles)
 	http.ListenAndServe("0.0.0.0:"+port, nil)
 }
 
