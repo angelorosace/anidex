@@ -34,34 +34,34 @@ func parseAnimalRequest(m *multipart.Form) {
 
 	for _, v := range m.File["photo[]"] {
 		fmt.Println(v.Filename, ":", v.Size)
-		/*file, err := v.Open()
+		file, err := v.Open()
 		if err != nil {
 			fmt.Println(err)
 		}
 		defer file.Close()
 
-		// Create directory
-		//dirPath := "/Users/accilo/Desktop/angelo/anidex_api/temp-img"
-		dirPath := os.Getenv("RAILWAY_VOLUME_MOUNT_PATH") + "/uploaded_images"
-		if _, err := os.Stat(dirPath); errors.Is(err, os.ErrNotExist) {
-			err := os.Mkdir(dirPath, os.ModePerm)
-			if err != nil {
-				log.Println(err)
-
+		/*
+			// Create directory
+			//dirPath := "/Users/accilo/Desktop/angelo/anidex_api/temp-img"
+			dirPath := os.Getenv("RAILWAY_VOLUME_MOUNT_PATH") + "/uploaded_images"
+			if _, err := os.Stat(dirPath); errors.Is(err, os.ErrNotExist) {
+				err := os.Mkdir(dirPath, os.ModePerm)
+				if err != nil {
+					fmt.Println(err)
+				}
 			}
-		}
 
-		// Create file
-		dst, err := os.Create(filepath.Join(dirPath, filepath.Base(v.Filename)))
-		if err != nil {
-			fmt.Println(err)
-			return
-		}
-		defer dst.Close()
-		if _, err = io.Copy(dst, file); err != nil {
-			fmt.Println(err)
-			return
-		}*/
+			// Create file
+			dst, err := os.Create(filepath.Join(dirPath, filepath.Base(v.Filename)))
+			if err != nil {
+				fmt.Println(err)
+				return
+			}
+			defer dst.Close()
+			if _, err = io.Copy(dst, file); err != nil {
+				fmt.Println(err)
+				return
+			}*/
 	}
 	fmt.Println("Successfully Uploaded Images")
 }
