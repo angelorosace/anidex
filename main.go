@@ -1,14 +1,11 @@
 package main
 
 import (
-	"errors"
 	"fmt"
-	"io"
 	"log"
 	"mime/multipart"
 	"net/http"
 	"os"
-	"path/filepath"
 
 	DB "anidex_api/db"
 )
@@ -37,7 +34,7 @@ func parseAnimalRequest(m *multipart.Form) {
 
 	for _, v := range m.File["photo[]"] {
 		fmt.Println(v.Filename, ":", v.Size)
-		file, err := v.Open()
+		/*file, err := v.Open()
 		if err != nil {
 			fmt.Println(err)
 		}
@@ -64,7 +61,7 @@ func parseAnimalRequest(m *multipart.Form) {
 		if _, err = io.Copy(dst, file); err != nil {
 			fmt.Println(err)
 			return
-		}
+		}*/
 	}
 	fmt.Println("Successfully Uploaded Images")
 }
