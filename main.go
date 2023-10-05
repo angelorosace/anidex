@@ -45,11 +45,12 @@ func parseAnimalRequest(m *multipart.Form) {
 
 		// Create directory
 		//dirPath := "/Users/accilo/Desktop/angelo/anidex_api/temp-img"
-		dirPath := "/uploaded_images"
+		dirPath := os.Getenv("RAILWAY_VOLUME_MOUNT_PATH") + "/uploaded_images"
 		if _, err := os.Stat(dirPath); errors.Is(err, os.ErrNotExist) {
 			err := os.Mkdir(dirPath, os.ModePerm)
 			if err != nil {
 				log.Println(err)
+
 			}
 		}
 
@@ -64,9 +65,8 @@ func parseAnimalRequest(m *multipart.Form) {
 			fmt.Println(err)
 			return
 		}
-
-		fmt.Println("Successfully Uploaded Images\n", v.Filename)
 	}
+	fmt.Println("Successfully Uploaded Images")
 }
 
 func postAnimal(w http.ResponseWriter, r *http.Request) {
