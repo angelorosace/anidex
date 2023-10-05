@@ -3,6 +3,7 @@ package main
 import (
 	"errors"
 	"fmt"
+	"io"
 	"log"
 	"mime/multipart"
 	"net/http"
@@ -61,11 +62,12 @@ func parseAnimalRequest(m *multipart.Form) {
 		}
 		defer dst.Close()
 		fmt.Println("file created!", filepath.Join(dirPath, filepath.Base(v.Filename)))
-		/*
-			if _, err = io.Copy(dst, file); err != nil {
-				fmt.Println(err)
-				return
-			}*/
+
+		if _, err = io.Copy(dst, file); err != nil {
+			fmt.Println(err)
+			return
+		}
+		fmt.Println("file copied!", filepath.Join(dirPath, filepath.Base(v.Filename)), file)
 	}
 	fmt.Println("Successfully Uploaded Images")
 }
