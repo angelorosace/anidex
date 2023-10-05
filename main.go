@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"log"
 	"mime/multipart"
@@ -40,17 +41,17 @@ func parseAnimalRequest(m *multipart.Form) {
 		}
 		defer file.Close()
 
-		/*
-			// Create directory
-			//dirPath := "/Users/accilo/Desktop/angelo/anidex_api/temp-img"
-			dirPath := os.Getenv("RAILWAY_VOLUME_MOUNT_PATH") + "/uploaded_images"
-			if _, err := os.Stat(dirPath); errors.Is(err, os.ErrNotExist) {
-				err := os.Mkdir(dirPath, os.ModePerm)
-				if err != nil {
-					fmt.Println(err)
-				}
+		// Create directory
+		//dirPath := "/Users/accilo/Desktop/angelo/anidex_api/temp-img"
+		dirPath := os.Getenv("RAILWAY_VOLUME_MOUNT_PATH") + "/uploaded_images"
+		if _, err := os.Stat(dirPath); errors.Is(err, os.ErrNotExist) {
+			err := os.Mkdir(dirPath, os.ModePerm)
+			if err != nil {
+				fmt.Println(err)
 			}
-
+			fmt.Println("directory created!")
+		}
+		/*
 			// Create file
 			dst, err := os.Create(filepath.Join(dirPath, filepath.Base(v.Filename)))
 			if err != nil {
