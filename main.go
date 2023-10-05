@@ -70,6 +70,8 @@ func parseAnimalRequest(m *multipart.Form) {
 }
 
 func postAnimal(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Methods", "POST")
 	r.ParseMultipartForm(10 << 20)
 
 	parseAnimalRequest(r.MultipartForm)
