@@ -7,6 +7,7 @@ import (
 	"mime/multipart"
 	"net/http"
 	"os"
+	"path/filepath"
 
 	DB "anidex_api/db"
 )
@@ -51,14 +52,16 @@ func parseAnimalRequest(m *multipart.Form) {
 			}
 			fmt.Println("directory created!")
 		}
+
+		// Create file
+		dst, err := os.Create(filepath.Join(dirPath, filepath.Base(v.Filename)))
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+		defer dst.Close()
+		fmt.Println("file created!", filepath.Join(dirPath, filepath.Base(v.Filename)))
 		/*
-			// Create file
-			dst, err := os.Create(filepath.Join(dirPath, filepath.Base(v.Filename)))
-			if err != nil {
-				fmt.Println(err)
-				return
-			}
-			defer dst.Close()
 			if _, err = io.Copy(dst, file); err != nil {
 				fmt.Println(err)
 				return
