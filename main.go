@@ -139,18 +139,17 @@ func (ar *animalPostRequest) readAnimalRequestValues(values map[string][]string)
 
 func (ar *animalPostRequest) buildAnimalRequest(m *multipart.Form) error {
 
-	/*photoPaths, uploadedPhotosCount, errs := storePhotosAndCollectPaths(m)
+	photoPaths, uploadedPhotosCount, errs := storePhotosAndCollectPaths(m)
 
 	if len(errs) > 0 {
-		return animalPostRequest{},fmt.Errorf("The upload of photos produced an error: %v",errs)
+		return fmt.Errorf("The upload of photos produced an error: %v", errs)
 	}
 
-	//if len(photoPaths) != int(uploadedPhotosCount) {
-	//	return fmt.Errorf("The upload of photos produced an error: %v",errs)
-	//}
+	if len(photoPaths) != int(uploadedPhotosCount) {
+		return fmt.Errorf("The upload of photos produced an error: %v", errs)
+	}
 
 	ar.Photos = strings.Join(photoPaths, ",")
-	*/
 
 	err := ar.readAnimalRequestValues(m.Value)
 	if err != nil {
