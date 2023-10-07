@@ -40,7 +40,7 @@ type Response struct {
 	Status     int               `json:"status"`
 }
 
-var ANIMAL_POST_REQUEST_MANDATORY_FIELDS = []string{"photo[]", "name", "taxonomy", "etymology", "iucn[]", "geo", "migration", "habitat", "dimensions", "ds", "diet"}
+var ANIMAL_POST_REQUEST_MANDATORY_FIELDS = []string{"photo[]", "name", "taxonomy", "etymology", "iucn[]", "geo", "migration", "habitat", "dimensions", "ds", "diet", "description"}
 
 func getStatus(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("OK")
@@ -117,8 +117,8 @@ func (ar *animalPostRequest) readAnimalRequestValues(values map[string][]string)
 
 		value, err := getDataFromMap(v, values)
 
-		if v == "description" && err == nil {
-			ar.Description = value[0]
+		if v == "description" && err != nil {
+			ar.Description = ""
 			continue
 		}
 
@@ -231,6 +231,7 @@ func postAnimal(w http.ResponseWriter, r *http.Request) {
 		w.Write(animalRequestErrorResponse(w, err))
 		return
 	}
+
 	w.Write(animalRequestSuccessResponse(w, animalRequest))
 
 }
