@@ -117,8 +117,8 @@ func (ar *animalPostRequest) readAnimalRequestValues(values map[string][]string)
 
 		value, err := getDataFromMap(v, values)
 
-		if v == "description" && err != nil {
-			ar.Description = ""
+		if v == "description" && err == nil {
+			ar.Description = value[0]
 			continue
 		}
 
