@@ -3,12 +3,20 @@ package handlers
 import (
 	"database/sql"
 	"encoding/json"
+	"fmt"
 	"net/http"
 )
 
 type Category struct {
 	ID   int    `json:"id"`
 	Name string `json:"name"`
+}
+
+type categorySuccessResponse struct {
+	CategoryData []Category `json:"categoryData"`
+	Error        string     `json:"error"`
+	Message      string     `json:"message"`
+	Status       int        `json:"status"`
 }
 
 func GetCategories(w http.ResponseWriter, r *http.Request) {
@@ -28,6 +36,8 @@ func GetCategories(w http.ResponseWriter, r *http.Request) {
 	// Create a slice to hold the results
 	var categories []Category
 
+	fmt.Println(res)
+
 	// Iterate through the rows and scan data into the slice
 	for res.Next() {
 		var cat Category
@@ -45,13 +55,18 @@ func GetCategories(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Convert the slice to JSON
-	jsonData, err := json.Marshal(categories)
+	fmt.Println(categories)
+
+	w.WriteHeader(http.StatusOK)
+	response := categorySuccessResponse{
+		CategoryData: categories,
+		Message:      "Categories successfully fetched",
+		Status:       http.StatusOK,
+	}
+	jsonResponse, err := json.Marshal(response)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-
-	w.WriteHeader(http.StatusOK)
-	w.Write(jsonData)
+	w.Write(jsonResponse)
 }
