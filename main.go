@@ -45,7 +45,7 @@ func setupRoutes(port string, db *sql.DB) {
 
 	//Category
 	if db != nil {
-		http.HandleFunc("categories", middleware.WithDatabase(db, category.GetCategories))
+		http.HandleFunc("/categories", middleware.WithDatabase(db, category.GetCategories))
 	}
 
 	http.HandleFunc("/", getStatus)

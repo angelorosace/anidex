@@ -3,7 +3,6 @@ package handlers
 import (
 	"database/sql"
 	"encoding/json"
-	"fmt"
 	"net/http"
 )
 
@@ -36,8 +35,6 @@ func GetCategories(w http.ResponseWriter, r *http.Request) {
 	// Create a slice to hold the results
 	var categories []Category
 
-	fmt.Println(res)
-
 	// Iterate through the rows and scan data into the slice
 	for res.Next() {
 		var cat Category
@@ -54,8 +51,6 @@ func GetCategories(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-
-	fmt.Println(categories)
 
 	w.WriteHeader(http.StatusOK)
 	response := categorySuccessResponse{
