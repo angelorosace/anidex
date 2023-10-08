@@ -1,0 +1,57 @@
+package handlers
+
+import (
+	"database/sql"
+	"encoding/json"
+	"net/http"
+)
+
+type Category struct {
+	ID   int    `json:"id"`
+	Name string `json:"name"`
+}
+
+func GetCategories(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Access-Control-Allow-Methods", "GET")
+	w.Header().Set("Content-Type", "application/json")
+
+	//retrieve DB from context
+	db := r.Context().Value("db").(*sql.DB)
+
+	res, err := db.Query("SELECT * from categories")
+	if err != nil {
+		w.Write(animalRequestErrorResponse(w, err))
+		return
+	}
+	defer res.Close()
+
+	// Create a slice to hold the results
+	var categories []Category
+
+	// Iterate through the rows and scan data into the slice
+	for res.Next() {
+		var cat Category
+		err := res.Scan(&cat.ID, &cat.Name)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		categories = append(categories, cat)
+	}
+
+	// Check for errors from iterating over rows
+	if err := res.Err(); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	// Convert the slice to JSON
+	jsonData, err := json.Marshal(categories)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	w.Write(jsonData)
+}

@@ -122,8 +122,6 @@ func storePhotosAndCollectPaths(m *multipart.Form) ([]string, int32, []error) {
 		}
 		defer file.Close()
 
-		// Create directory
-		//dirPath := "/Users/accilo/Desktop/angelo/anidex_api/temp-img"
 		dirPath := os.Getenv("RAILWAY_VOLUME_MOUNT_PATH") + "/uploaded_images"
 		if _, err := os.Stat(dirPath); errors.Is(err, os.ErrNotExist) {
 			err := os.Mkdir(dirPath, os.ModePerm)
@@ -181,7 +179,7 @@ func (ar *AnimalRequest) buildAnimalRequest(m *multipart.Form) error {
 
 }
 
-func PostAnimal(w http.ResponseWriter, r *http.Request) {
+func CreateAnimal(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Access-Control-Allow-Methods", "POST")
 	w.Header().Set("Content-Type", "application/json")
