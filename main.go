@@ -20,6 +20,7 @@ import (
 
 type animalPostRequest struct {
 	Photos      string `json:"photo"`
+	Category    string `json:"category"`
 	Name        string `json:"name"`
 	Taxonomy    string `json:"taxonomy"`
 	Etymology   string `json:"etymology"`
@@ -40,7 +41,7 @@ type Response struct {
 	Status     int               `json:"status"`
 }
 
-var ANIMAL_POST_REQUEST_MANDATORY_FIELDS = []string{"photo[]", "name", "taxonomy", "etymology", "iucn[]", "geo", "migration", "habitat", "dimensions", "ds", "diet", "description"}
+var ANIMAL_POST_REQUEST_MANDATORY_FIELDS = []string{"photo[]", "name", "taxonomy", "etymology", "iucn[]", "geo", "migration", "habitat", "dimensions", "ds", "diet", "description", "category"}
 
 func getStatus(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("OK")
@@ -205,7 +206,7 @@ func postAnimal(w http.ResponseWriter, r *http.Request) {
 	db := r.Context().Value("db").(*sql.DB)
 
 	//save data in mysql
-	stmt, err := db.Prepare("INSERT INTO animals (photos,name,taxonomy,etymology,iucn,geo,migration,habitat,dimensions,ds,diet,description) VALUES (?, ?,?, ?,?, ?,?, ?,?, ?,?, ?)")
+	stmt, err := db.Prepare("INSERT INTO animals (photos,name,taxonomy,etymology,iucn,geo,migration,habitat,dimensions,ds,diet,description,category) VALUES (?, ?,?, ?,?, ?,?, ?,?, ?,?, ?,?)")
 	if err != nil {
 		w.Write(animalRequestErrorResponse(w, err))
 		return
@@ -225,6 +226,7 @@ func postAnimal(w http.ResponseWriter, r *http.Request) {
 		animalRequest.Ds,
 		animalRequest.Diet,
 		animalRequest.Description,
+		animalRequest.Category,
 	)
 
 	if err != nil {
