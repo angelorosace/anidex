@@ -39,14 +39,15 @@ func setupRoutes(port string, db *sql.DB) {
 
 		//Animal
 		http.HandleFunc("/animal", handlers.CreateAnimal)
+	} else {
+		//Animal
+		http.HandleFunc("/animal", middleware.WithDatabase(db, handlers.CreateAnimal))
 
 		//Category
 		http.HandleFunc("/categories", middleware.WithDatabase(db, handlers.GetCategories))
 
 		//Stats
 		http.HandleFunc("/stats", middleware.WithDatabase(db, handlers.GetStats))
-	} else {
-		http.HandleFunc("/animal", middleware.WithDatabase(db, handlers.CreateAnimal))
 	}
 
 	http.HandleFunc("/", getStatus)
