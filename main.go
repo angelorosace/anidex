@@ -7,8 +7,7 @@ import (
 	"net/http"
 	"os"
 
-	animal "anidex_api/api/handlers"
-	category "anidex_api/api/handlers"
+	handlers "anidex_api/api/handlers"
 	middleware "anidex_api/api/middleware"
 	DB "anidex_api/db"
 )
@@ -36,16 +35,18 @@ func setupRoutes(port string, db *sql.DB) {
 		port = "4000"
 	}
 
-	//Animal
 	if db == nil { //test without DB
-		http.HandleFunc("/animal", animal.CreateAnimal)
-	} else {
-		http.HandleFunc("/animal", middleware.WithDatabase(db, animal.CreateAnimal))
-	}
 
-	//Category
-	if db != nil {
-		http.HandleFunc("/categories", middleware.WithDatabase(db, category.GetCategories))
+		//Animal
+		http.HandleFunc("/animal", handlers.CreateAnimal)
+
+		//Category
+		http.HandleFunc("/categories", middleware.WithDatabase(db, handlers.GetCategories))
+
+		//Stats
+		http.HandleFunc("/stats", middleware.WithDatabase(db, handlers.GetStats))
+	} else {
+		http.HandleFunc("/animal", middleware.WithDatabase(db, handlers.CreateAnimal))
 	}
 
 	http.HandleFunc("/", getStatus)
