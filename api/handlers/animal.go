@@ -11,9 +11,11 @@ import (
 	"os"
 	"path/filepath"
 	"reflect"
+	"strconv"
 	"strings"
 
 	animal "anidex_api/domain/animal"
+	responses "anidex_api/http/responses"
 )
 
 type AnimalRequest struct {
@@ -30,6 +32,12 @@ type AnimalRequest struct {
 	Ds          string `json:"ds"`
 	Diet        string `json:"diet"`
 	Description string `json:"description"`
+}
+
+type AnimalPreview struct {
+	ID     int    `json:"id"`
+	Photos string `json:"photos"`
+	Name   string `json:"name"`
 }
 
 type AnimalResponse struct {
@@ -226,4 +234,71 @@ func CreateAnimal(w http.ResponseWriter, r *http.Request) {
 
 	w.Write(animalRequestSuccessResponse(w, animalRequest))
 
+}
+
+func GetAnimals(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Methods", "GET")
+	w.Header().Set("Content-Type", "application/json")
+
+	category := r.URL.Query().Get("category")
+	pageStr := r.URL.Query().Get("page")
+
+	if category == "" || pageStr == "" {
+		resp, err := responses.MissingURLParametersResponse(w)
+		if err != nil {
+			return
+		}
+		w.Write(resp)
+		return
+	}
+
+	page, err := strconv.Atoi(pageStr)
+	if err != nil || page < 1 {
+		resp, err := responses.CustomResponse(w, nil, "Invalid value for page parameter", http.StatusBadRequest, err.Error())
+		if err != nil {
+			return
+		}
+		w.Write(resp)
+		return
+	}
+
+	// Set up pagination parameters (you can customize these)
+	itemsPerPage := 10
+	offset := (page - 1) * itemsPerPage
+
+	db := r.Context().Value("db").(*sql.DB)
+
+	// Query the database
+	query := "SELECT id,photos,name FROM animals WHERE category = ? LIMIT ? OFFSET ?"
+	rows, err := db.Query(query, category, itemsPerPage, offset)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	defer rows.Close()
+
+	// Fetch the entries
+	var animalPreviews []AnimalPreview
+	for rows.Next() {
+		var entry AnimalPreview
+		err := rows.Scan(&entry.ID, &entry.Photos, &entry.Name)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		animalPreviews = append(animalPreviews, entry)
+	}
+
+	response, e := responses.CustomResponse(w, animalPreviews, pageStr, http.StatusOK, "")
+	if e != nil {
+		http.Error(w, e.Error(), http.StatusInternalServerError)
+		return
+	}
+	jsonResponse, err := json.Marshal(response)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	w.Write(jsonResponse)
 }
