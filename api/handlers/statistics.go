@@ -9,8 +9,8 @@ import (
 )
 
 type Stat struct {
-	ID    int `json:"id"`
-	Count int `json:"count"`
+	Category string `json:"category"`
+	Count    int    `json:"count"`
 }
 
 func GetStats(w http.ResponseWriter, r *http.Request) {
@@ -49,17 +49,20 @@ func GetStats(w http.ResponseWriter, r *http.Request) {
 	defer res.Close()
 
 	// Create a slice to hold the results
-	var stats []Stat
+	stats := make(map[string]Stat)
 
 	// Iterate through the rows and scan data into the slice
 	for res.Next() {
-		var stat Stat
-		err := res.Scan(&stat.ID, &stat.Count)
+		var category string
+		var count int
+		err := res.Scan(&category, &count)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
-		stats = append(stats, stat)
+
+		stat := Stat{Category: category, Count: count}
+		stats[category] = stat
 	}
 
 	// Check for errors from iterating over rows
