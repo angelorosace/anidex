@@ -32,13 +32,15 @@ func getFiles(w http.ResponseWriter, r *http.Request) {
 
 func setupRoutes(port string, db *sql.DB) {
 	if port == "" {
-		port = "4000"
+		port = "3000"
 	}
 
 	if db == nil { //test without DB
 
 		//Animal
 		http.HandleFunc("/animal", handlers.CreateAnimal)
+		http.HandleFunc("/animals", handlers.GetAnimals)
+
 	} else {
 		//Animal
 		http.HandleFunc("/animal", middleware.WithDatabase(db, handlers.CreateAnimal))
@@ -69,8 +71,10 @@ func main() {
 			fmt.Println("Connection with DB established!")
 		}
 		defer db.Close()
+		fmt.Println("Server online reachable at port", port)
 		setupRoutes(port, db)
 	} else {
+		fmt.Println("Server online reachable at port 3000")
 		setupRoutes(port, nil)
 	}
 
