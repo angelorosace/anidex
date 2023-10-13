@@ -46,6 +46,9 @@ func setupRoutes(port string, db *sql.DB) {
 		http.HandleFunc("/animal", middleware.WithDatabase(db, handlers.CreateAnimal))
 		http.HandleFunc("/animals", middleware.WithDatabase(db, handlers.GetAnimals))
 
+		//Images
+		http.HandleFunc("/images", handlers.GetImages)
+
 		//Category
 		http.HandleFunc("/categories", middleware.WithDatabase(db, handlers.GetCategories))
 
