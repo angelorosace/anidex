@@ -3,14 +3,16 @@ package handlers
 import (
 	"anidex_api/http/responses"
 	"net/http"
+
+	"github.com/gorilla/mux"
 )
 
-func GetImages(w http.ResponseWriter, r *http.Request) {
+func GetImageByPath(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Access-Control-Allow-Methods", "GET")
-	//w.Header().Set("Content-Type", "application/json")
+
 	// Extract the file name from the URL path
-	photoPath := r.URL.Query().Get("photo")
+	photoPath := mux.Vars(r)["photo"]
 
 	if photoPath == "" {
 		resp, err := responses.MissingURLParametersResponse(w)

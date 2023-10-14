@@ -10,6 +10,8 @@ import (
 	handlers "anidex_api/api/handlers"
 	middleware "anidex_api/api/middleware"
 	DB "anidex_api/db"
+
+	"github.com/gorilla/mux"
 )
 
 func getStatus(w http.ResponseWriter, r *http.Request) {
@@ -35,30 +37,36 @@ func setupRoutes(port string, db *sql.DB) {
 		port = "3000"
 	}
 
+	r := mux.NewRouter()
+
 	if db == nil { //test without DB
 
 		//Animal
-		http.HandleFunc("/animal", handlers.CreateAnimal)
-		http.HandleFunc("/animals", handlers.GetAnimals)
+		r.HandleFunc("/animal", handlers.CreateAnimal).Methods("GET")
+		r.HandleFunc("/animals/category/{category}/page/{page}", handlers.GetAnimalsByCategory).Methods("GET")
 
 	} else {
 		//Animal
-		http.HandleFunc("/animal", middleware.WithDatabase(db, handlers.CreateAnimal))
-		http.HandleFunc("/animals", middleware.WithDatabase(db, handlers.GetAnimals))
+		r.HandleFunc("/animal", middleware.WithDatabase(db, handlers.CreateAnimal)).Methods("POST")
+		r.HandleFunc("/animals/category/{category}/page/{page}", middleware.WithDatabase(db, handlers.GetAnimalsByCategory)).Methods("GET")
+		r.HandleFunc("/animals/id/{id}", middleware.WithDatabase(db, handlers.GetAnimalById)).Methods("GET")
 
 		//Images
-		http.HandleFunc("/images", handlers.GetImages)
+		r.HandleFunc("/images/photo/{photo}", handlers.GetImageByPath).Methods("GET")
 
 		//Category
-		http.HandleFunc("/categories", middleware.WithDatabase(db, handlers.GetCategories))
+		r.HandleFunc("/categories", middleware.WithDatabase(db, handlers.GetCategories)).Methods("GET")
 
 		//Stats
-		http.HandleFunc("/stats", middleware.WithDatabase(db, handlers.GetStats))
+		r.HandleFunc("/stats", middleware.WithDatabase(db, handlers.GetStats)).Methods("GET")
 	}
 
-	http.HandleFunc("/", getStatus)
+	http.Handle("/", r)
 	http.HandleFunc("/getFiles", getFiles)
-	http.ListenAndServe("0.0.0.0:"+port, nil)
+	err := http.ListenAndServe("0.0.0.0:"+port, nil)
+	if err != nil {
+		fmt.Println("Server error:", err)
+	}
 }
 
 func main() {

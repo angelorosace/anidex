@@ -16,9 +16,28 @@ import (
 
 	animal "anidex_api/domain/animal"
 	responses "anidex_api/http/responses"
+
+	"github.com/gorilla/mux"
 )
 
 type AnimalRequest struct {
+	Photos      string `json:"photo"`
+	Category    string `json:"category"`
+	Name        string `json:"name"`
+	Taxonomy    string `json:"taxonomy"`
+	Etymology   string `json:"etymology"`
+	Iucn        string `json:"iucn"`
+	Geo         string `json:"geo"`
+	Migration   string `json:"migration"`
+	Habitat     string `json:"habitat"`
+	Dimensions  string `json:"dimensions"`
+	Ds          string `json:"ds"`
+	Diet        string `json:"diet"`
+	Description string `json:"description"`
+}
+
+type Animal struct {
+	ID          int    `json:"id"`
 	Photos      string `json:"photo"`
 	Category    string `json:"category"`
 	Name        string `json:"name"`
@@ -236,21 +255,25 @@ func CreateAnimal(w http.ResponseWriter, r *http.Request) {
 
 }
 
-func GetAnimals(w http.ResponseWriter, r *http.Request) {
+func GetAnimalsByCategory(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Access-Control-Allow-Methods", "GET")
 	w.Header().Set("Content-Type", "application/json")
 
-	category := r.URL.Query().Get("category")
-	pageStr := r.URL.Query().Get("page")
+	category := mux.Vars(r)["category"]
+	pageStr := mux.Vars(r)["page"]
 
-	if category == "" || pageStr == "" {
+	if category == "" {
 		resp, err := responses.MissingURLParametersResponse(w)
 		if err != nil {
 			return
 		}
 		w.Write(resp)
 		return
+	}
+
+	if pageStr == "" {
+		pageStr = "1"
 	}
 
 	page, err := strconv.Atoi(pageStr)
@@ -291,6 +314,58 @@ func GetAnimals(w http.ResponseWriter, r *http.Request) {
 	}
 
 	response, e := responses.CustomResponse(w, animalPreviews, pageStr, http.StatusOK, "")
+	if e != nil {
+		http.Error(w, e.Error(), http.StatusInternalServerError)
+		return
+	}
+	w.Write(response)
+}
+
+func GetAnimalById(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Methods", "GET")
+	w.Header().Set("Content-Type", "application/json")
+
+	id := mux.Vars(r)["id"]
+
+	db := r.Context().Value("db").(*sql.DB)
+
+	// Query the database
+	query := "SELECT * FROM animals WHERE id = ?"
+	rows, err := db.Query(query, id)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	defer rows.Close()
+
+	// Fetch the entries
+	var animal Animal
+	for rows.Next() {
+		err := rows.Scan(
+			&animal.ID,
+			&animal.Photos,
+			&animal.Name,
+			&animal.Taxonomy,
+			&animal.Etymology,
+			&animal.Iucn,
+			&animal.Geo,
+			&animal.Migration,
+			&animal.Etymology,
+			&animal.Habitat,
+			&animal.Dimensions,
+			&animal.Ds,
+			&animal.Diet,
+			&animal.Description,
+			&animal.Category,
+		)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+	}
+
+	response, e := responses.CustomResponse(w, animal, "Animal fetched from DB", http.StatusOK, "")
 	if e != nil {
 		http.Error(w, e.Error(), http.StatusInternalServerError)
 		return
