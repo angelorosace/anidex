@@ -16,8 +16,6 @@ import (
 
 	animal "anidex_api/domain/animal"
 	responses "anidex_api/http/responses"
-
-	"github.com/gorilla/mux"
 )
 
 type AnimalRequest struct {
@@ -255,13 +253,34 @@ func CreateAnimal(w http.ResponseWriter, r *http.Request) {
 
 }
 
-func GetAnimalsByCategory(w http.ResponseWriter, r *http.Request) {
+func GetAnimalsHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Access-Control-Allow-Methods", "GET")
 	w.Header().Set("Content-Type", "application/json")
 
-	category := mux.Vars(r)["category"]
-	pageStr := mux.Vars(r)["page"]
+	category := r.URL.Query().Get("category")
+	pageStr := r.URL.Query().Get("page")
+
+	id := r.URL.Query().Get("id")
+
+	if id != "" {
+		getAnimalById(w, r, id)
+	} else {
+		getAnimalsByCategory(w, r, category, pageStr)
+	}
+
+	resp, err := responses.MissingURLParametersResponse(w)
+	if err != nil {
+		return
+	}
+	w.Write(resp)
+	return
+}
+
+func getAnimalsByCategory(w http.ResponseWriter, r *http.Request, category string, pageStr string) {
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Methods", "GET")
+	w.Header().Set("Content-Type", "application/json")
 
 	if category == "" {
 		resp, err := responses.MissingURLParametersResponse(w)
@@ -319,14 +338,10 @@ func GetAnimalsByCategory(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	w.Write(response)
+	return
 }
 
-func GetAnimalById(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Access-Control-Allow-Origin", "*")
-	w.Header().Set("Access-Control-Allow-Methods", "GET")
-	w.Header().Set("Content-Type", "application/json")
-
-	id := mux.Vars(r)["id"]
+func getAnimalById(w http.ResponseWriter, r *http.Request, id string) {
 
 	db := r.Context().Value("db").(*sql.DB)
 
@@ -371,4 +386,5 @@ func GetAnimalById(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	w.Write(response)
+	return
 }
