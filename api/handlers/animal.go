@@ -263,21 +263,19 @@ func GetAnimalsHandler(w http.ResponseWriter, r *http.Request) {
 
 	id := r.URL.Query().Get("id")
 
+	var response []byte
 	if id != "" {
-		getAnimalById(w, r, id)
+		response = getAnimalById(w, r, id)
 	} else {
-		getAnimalsByCategory(w, r, category, pageStr)
+		response = getAnimalsByCategory(w, r, category, pageStr)
 	}
 
-	resp, err := responses.MissingURLParametersResponse(w)
-	if err != nil {
-		return
+	if response != nil {
+		w.Write(response)
 	}
-	w.Write(resp)
-	return
 }
 
-func getAnimalsByCategory(w http.ResponseWriter, r *http.Request, category string, pageStr string) {
+func getAnimalsByCategory(w http.ResponseWriter, r *http.Request, category string, pageStr string) []byte {
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Access-Control-Allow-Methods", "GET")
 	w.Header().Set("Content-Type", "application/json")
@@ -285,10 +283,9 @@ func getAnimalsByCategory(w http.ResponseWriter, r *http.Request, category strin
 	if category == "" {
 		resp, err := responses.MissingURLParametersResponse(w)
 		if err != nil {
-			return
+			return nil
 		}
-		w.Write(resp)
-		return
+		return resp
 	}
 
 	if pageStr == "" {
@@ -299,10 +296,9 @@ func getAnimalsByCategory(w http.ResponseWriter, r *http.Request, category strin
 	if err != nil || page < 1 {
 		resp, err := responses.CustomResponse(w, nil, "Invalid value for page parameter", http.StatusBadRequest, err.Error())
 		if err != nil {
-			return
+			return nil
 		}
-		w.Write(resp)
-		return
+		return resp
 	}
 
 	// Set up pagination parameters (you can customize these)
@@ -316,7 +312,7 @@ func getAnimalsByCategory(w http.ResponseWriter, r *http.Request, category strin
 	rows, err := db.Query(query, category, itemsPerPage, offset)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
+		return nil
 	}
 	defer rows.Close()
 
@@ -327,7 +323,7 @@ func getAnimalsByCategory(w http.ResponseWriter, r *http.Request, category strin
 		err := rows.Scan(&entry.ID, &entry.Photos, &entry.Name)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
+			return nil
 		}
 		animalPreviews = append(animalPreviews, entry)
 	}
@@ -335,13 +331,12 @@ func getAnimalsByCategory(w http.ResponseWriter, r *http.Request, category strin
 	response, e := responses.CustomResponse(w, animalPreviews, pageStr, http.StatusOK, "")
 	if e != nil {
 		http.Error(w, e.Error(), http.StatusInternalServerError)
-		return
+		return nil
 	}
-	w.Write(response)
-	return
+	return response
 }
 
-func getAnimalById(w http.ResponseWriter, r *http.Request, id string) {
+func getAnimalById(w http.ResponseWriter, r *http.Request, id string) []byte {
 
 	db := r.Context().Value("db").(*sql.DB)
 
@@ -350,7 +345,7 @@ func getAnimalById(w http.ResponseWriter, r *http.Request, id string) {
 	rows, err := db.Query(query, id)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
+		return nil
 	}
 	defer rows.Close()
 
@@ -376,15 +371,14 @@ func getAnimalById(w http.ResponseWriter, r *http.Request, id string) {
 		)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
+			return nil
 		}
 	}
 
 	response, e := responses.CustomResponse(w, animal, "Animal fetched from DB", http.StatusOK, "")
 	if e != nil {
 		http.Error(w, e.Error(), http.StatusInternalServerError)
-		return
+		return nil
 	}
-	w.Write(response)
-	return
+	return response
 }
