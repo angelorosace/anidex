@@ -361,7 +361,6 @@ func getAnimalById(w http.ResponseWriter, r *http.Request, id string) []byte {
 			&animal.Iucn,
 			&animal.Geo,
 			&animal.Migration,
-			&animal.Etymology,
 			&animal.Habitat,
 			&animal.Dimensions,
 			&animal.Ds,
