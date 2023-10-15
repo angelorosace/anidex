@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"database/sql"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -29,12 +30,12 @@ func Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	fmt.Println(credentials)
+	//get user with same username from DB
+	db := r.Context().Value("db").(*sql.DB)
+
+	fmt.Println("DB accessed", db)
 
 	/*
-		//get user with same username from DB
-		db := r.Context().Value("db").(*sql.DB)
-
 		// Query the database
 		query := "SELECT * FROM users WHERE username = ?"
 		rows, err := db.Query(query, credentials.UserName)
