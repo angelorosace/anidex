@@ -42,28 +42,26 @@ func Login(w http.ResponseWriter, r *http.Request) {
 	}
 	defer rows.Close()
 
-	fmt.Println(rows)
-
-	/*
-
-		if !rows.Next() {
-			http.Error(w, err.Error(), http.StatusNoContent)
+	var user User
+	for rows.Next() {
+		err := rows.Scan(
+			&user.ID,
+			&user.UserName,
+			&user.Password,
+		)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
+	}
 
-		var user User
-		for rows.Next() {
-			err := rows.Scan(
-				&user.ID,
-				&user.UserName,
-				&user.Password,
-			)
-			if err != nil {
-				http.Error(w, err.Error(), http.StatusInternalServerError)
-				return
-			}
-		}
+	if user.UserName == "" {
+		fmt.Println("dio bestia")
+	}
 
+	fmt.Println("dio cane")
+
+	/*
 		//get salt from server
 		salt := os.Getenv("SALT")
 
