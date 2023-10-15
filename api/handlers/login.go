@@ -33,17 +33,18 @@ func Login(w http.ResponseWriter, r *http.Request) {
 	//get user with same username from DB
 	db := r.Context().Value("db").(*sql.DB)
 
-	fmt.Println("DB accessed", db)
+	// Query the database
+	query := "SELECT * FROM users WHERE username = ?"
+	rows, err := db.Query(query, credentials.UserName)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	defer rows.Close()
+
+	fmt.Println(rows)
 
 	/*
-		// Query the database
-		query := "SELECT * FROM users WHERE username = ?"
-		rows, err := db.Query(query, credentials.UserName)
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
-		defer rows.Close()
 
 		if !rows.Next() {
 			http.Error(w, err.Error(), http.StatusNoContent)
