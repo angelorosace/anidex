@@ -3,7 +3,6 @@ package handlers
 import (
 	responses "anidex_api/http/responses"
 	"database/sql"
-	"encoding/json"
 	"net/http"
 	"os"
 	"time"
@@ -25,16 +24,26 @@ type User struct {
 
 func Login(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Access-Control-Allow-Origin", "*")
-	w.Header().Set("Access-Control-Allow-Methods", "POST")
-	w.Header().Set("Content-Type", "application/json")
-	//get password from body
-	//get username from body
+	w.Header().Set("Access-Control-Allow-Methods", "GET")
+
+	//get password from url
+	//get username from url
 	var credentials Credentials
-	err := json.NewDecoder(r.Body).Decode(&credentials)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+	username := r.URL.Query().Get("username")
+	password := r.URL.Query().Get("password")
+
+	if username == "" || password == "" {
+		resp, err := responses.MissingURLParametersResponse(w)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		w.Write(resp)
 		return
 	}
+
+	credentials.UserName = username
+	credentials.Password = password
 
 	//get user with same username from DB
 	db := r.Context().Value("db").(*sql.DB)
