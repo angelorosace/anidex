@@ -41,6 +41,9 @@ func setupRoutes(port string, db *sql.DB) {
 		http.HandleFunc("/animal", handlers.CreateAnimal)
 		http.HandleFunc("/animals/category/{category}/page/{page}", handlers.GetAnimalsHandler)
 
+		//Login
+		http.HandleFunc("/login", handlers.Login)
+
 	} else {
 		//Animal
 		http.HandleFunc("/animal", middleware.WithDatabase(db, handlers.CreateAnimal))
@@ -54,6 +57,9 @@ func setupRoutes(port string, db *sql.DB) {
 
 		//Stats
 		http.HandleFunc("/stats", middleware.WithDatabase(db, handlers.GetStats))
+
+		//Login
+		http.HandleFunc("/login", middleware.WithDatabase(db, handlers.Login))
 	}
 
 	http.HandleFunc("/", getStatus)
