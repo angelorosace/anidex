@@ -26,6 +26,7 @@ type User struct {
 func Login(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Access-Control-Allow-Methods", "POST")
+	w.Header().Set("Content-Type", "application/json")
 	//get password from body
 	//get username from body
 	var credentials Credentials
