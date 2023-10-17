@@ -17,6 +17,7 @@ type Stat struct {
 func GetStats(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Access-Control-Allow-Methods", "GET")
+	w.Header().Set("Access-Control-Allow-Headers", "Authorization")
 	w.Header().Set("Content-Type", "application/json")
 
 	// verify token

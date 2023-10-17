@@ -208,6 +208,7 @@ func (ar *AnimalRequest) buildAnimalRequest(m *multipart.Form) error {
 func CreateAnimal(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Access-Control-Allow-Methods", "POST")
+	w.Header().Set("Access-Control-Allow-Headers", "Authorization")
 	w.Header().Set("Content-Type", "application/json")
 	r.ParseMultipartForm(10 << 20)
 
@@ -273,6 +274,7 @@ func CreateAnimal(w http.ResponseWriter, r *http.Request) {
 func GetAnimals(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Access-Control-Allow-Methods", "GET")
+	w.Header().Set("Access-Control-Allow-Headers", "Authorization")
 	w.Header().Set("Content-Type", "application/json")
 
 	// verify token
