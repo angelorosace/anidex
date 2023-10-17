@@ -8,17 +8,59 @@ import (
 	"os"
 
 	handlers "anidex_api/api/handlers"
+	"anidex_api/api/helpers"
 	middleware "anidex_api/api/middleware"
 	DB "anidex_api/db"
 )
 
 func getStatus(w http.ResponseWriter, r *http.Request) {
+	// verify token
+	authHeader := r.Header.Get("Authorization")
+
+	// Check if the "Authorization" header is set
+	if authHeader == "" {
+		// Handle the case where the header is not provided
+		http.Error(w, "Authorization header is missing", http.StatusUnauthorized)
+		return
+	}
+
+	_, e := helpers.VerifyToken(authHeader)
+	if e != nil {
+		if e.Error() == "Token is expired" {
+			http.Error(w, e.Error(), http.StatusUnauthorized)
+			return
+		}
+		// Handle the case where the header is not provided
+		http.Error(w, "Invalid Signature", http.StatusUnauthorized)
+		return
+	}
 	fmt.Println("OK")
 }
 
 func getFiles(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Access-Control-Allow-Methods", "GET")
+
+	// verify token
+	authHeader := r.Header.Get("Authorization")
+
+	// Check if the "Authorization" header is set
+	if authHeader == "" {
+		// Handle the case where the header is not provided
+		http.Error(w, "Authorization header is missing", http.StatusUnauthorized)
+		return
+	}
+
+	_, e := helpers.VerifyToken(authHeader)
+	if e != nil {
+		if e.Error() == "Token is expired" {
+			http.Error(w, e.Error(), http.StatusUnauthorized)
+			return
+		}
+		// Handle the case where the header is not provided
+		http.Error(w, "Invalid Signature", http.StatusUnauthorized)
+		return
+	}
 
 	entries, err := os.ReadDir(os.Getenv("RAILWAY_VOLUME_MOUNT_PATH") + "/uploaded_images")
 	if err != nil {
@@ -39,7 +81,7 @@ func setupRoutes(port string, db *sql.DB) {
 
 		//Animal
 		http.HandleFunc("/animal", handlers.CreateAnimal)
-		http.HandleFunc("/animals/category/{category}/page/{page}", handlers.GetAnimalsHandler)
+		http.HandleFunc("/animals/category/{category}/page/{page}", handlers.GetAnimals)
 
 		//Login
 		http.HandleFunc("/login", handlers.Login)
@@ -47,7 +89,7 @@ func setupRoutes(port string, db *sql.DB) {
 	} else {
 		//Animal
 		http.HandleFunc("/animal", middleware.WithDatabase(db, handlers.CreateAnimal))
-		http.HandleFunc("/animals", middleware.WithDatabase(db, handlers.GetAnimalsHandler))
+		http.HandleFunc("/animals", middleware.WithDatabase(db, handlers.GetAnimals))
 
 		//Images
 		http.HandleFunc("/images", handlers.GetImageByPath)

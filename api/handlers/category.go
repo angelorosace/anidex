@@ -1,6 +1,8 @@
 package handlers
 
 import (
+	"anidex_api/api/helpers"
+	responses "anidex_api/http/responses"
 	"database/sql"
 	"encoding/json"
 	"net/http"
@@ -22,6 +24,22 @@ func GetCategories(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Access-Control-Allow-Methods", "GET")
 	w.Header().Set("Content-Type", "application/json")
+
+	// verify token
+	authHeader := r.Header.Get("Authorization")
+
+	// Check if the "Authorization" header is set
+	if authHeader == "" {
+		// Handle the case where the header is not provided
+		http.Error(w, "Authorization header is missing", http.StatusUnauthorized)
+		return
+	}
+
+	_, e := helpers.VerifyToken(authHeader)
+	if e != nil {
+		responses.CustomResponse(w, nil, e.Error(), http.StatusUnauthorized, e.Error())
+		return
+	}
 
 	//retrieve DB from context
 	db := r.Context().Value("db").(*sql.DB)

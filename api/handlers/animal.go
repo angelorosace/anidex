@@ -14,6 +14,7 @@ import (
 	"strconv"
 	"strings"
 
+	"anidex_api/api/helpers"
 	animal "anidex_api/domain/animal"
 	responses "anidex_api/http/responses"
 )
@@ -210,6 +211,22 @@ func CreateAnimal(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	r.ParseMultipartForm(10 << 20)
 
+	// verify token
+	authHeader := r.Header.Get("Authorization")
+
+	// Check if the "Authorization" header is set
+	if authHeader == "" {
+		// Handle the case where the header is not provided
+		http.Error(w, "Authorization header is missing", http.StatusUnauthorized)
+		return
+	}
+
+	_, e := helpers.VerifyToken(authHeader)
+	if e != nil {
+		responses.CustomResponse(w, nil, e.Error(), http.StatusUnauthorized, e.Error())
+		return
+	}
+
 	var animalRequest AnimalRequest
 	err := animalRequest.buildAnimalRequest(r.MultipartForm)
 	if err != nil {
@@ -253,10 +270,26 @@ func CreateAnimal(w http.ResponseWriter, r *http.Request) {
 
 }
 
-func GetAnimalsHandler(w http.ResponseWriter, r *http.Request) {
+func GetAnimals(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Access-Control-Allow-Methods", "GET")
 	w.Header().Set("Content-Type", "application/json")
+
+	// verify token
+	authHeader := r.Header.Get("Authorization")
+
+	// Check if the "Authorization" header is set
+	if authHeader == "" {
+		// Handle the case where the header is not provided
+		http.Error(w, "Authorization header is missing", http.StatusUnauthorized)
+		return
+	}
+
+	_, e := helpers.VerifyToken(authHeader)
+	if e != nil {
+		responses.CustomResponse(w, nil, e.Error(), http.StatusUnauthorized, e.Error())
+		return
+	}
 
 	category := r.URL.Query().Get("category")
 	pageStr := r.URL.Query().Get("page")
