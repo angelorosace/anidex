@@ -14,6 +14,15 @@ import (
 )
 
 func getStatus(w http.ResponseWriter, r *http.Request) {
+	// Check if it's an OPTIONS request
+	if r.Method == http.MethodOptions {
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Access-Control-Allow-Methods", "GET")
+		w.Header().Set("Access-Control-Allow-Headers", "Authorization")
+		w.WriteHeader(http.StatusOK)
+		return
+	}
+
 	w.Header().Set("Access-Control-Allow-Headers", "Authorization")
 	// verify token
 	authHeader := r.Header.Get("Authorization")
@@ -39,6 +48,15 @@ func getStatus(w http.ResponseWriter, r *http.Request) {
 }
 
 func getFiles(w http.ResponseWriter, r *http.Request) {
+	// Check if it's an OPTIONS request
+	if r.Method == http.MethodOptions {
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Access-Control-Allow-Methods", "GET")
+		w.Header().Set("Access-Control-Allow-Headers", "Authorization")
+		w.WriteHeader(http.StatusOK)
+		return
+	}
+
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Access-Control-Allow-Methods", "GET")
 	w.Header().Set("Access-Control-Allow-Headers", "Authorization")

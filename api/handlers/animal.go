@@ -206,6 +206,15 @@ func (ar *AnimalRequest) buildAnimalRequest(m *multipart.Form) error {
 }
 
 func CreateAnimal(w http.ResponseWriter, r *http.Request) {
+	// Check if it's an OPTIONS request
+	if r.Method == http.MethodOptions {
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Access-Control-Allow-Methods", "GET")
+		w.Header().Set("Access-Control-Allow-Headers", "Authorization")
+		w.WriteHeader(http.StatusOK)
+		return
+	}
+
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Access-Control-Allow-Methods", "POST")
 	w.Header().Set("Access-Control-Allow-Headers", "Authorization")
@@ -272,6 +281,15 @@ func CreateAnimal(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetAnimals(w http.ResponseWriter, r *http.Request) {
+	// Check if it's an OPTIONS request
+	if r.Method == http.MethodOptions {
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Access-Control-Allow-Methods", "GET")
+		w.Header().Set("Access-Control-Allow-Headers", "Authorization")
+		w.WriteHeader(http.StatusOK)
+		return
+	}
+
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Access-Control-Allow-Methods", "GET")
 	w.Header().Set("Access-Control-Allow-Headers", "Authorization")
