@@ -92,6 +92,33 @@ func getFiles(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func removeFiles(w http.ResponseWriter, r *http.Request) {
+	// Check if it's an OPTIONS request
+	if r.Method == http.MethodOptions {
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Access-Control-Allow-Methods", "POST")
+		w.Header().Set("Access-Control-Allow-Headers", "Authorization")
+		w.WriteHeader(http.StatusOK)
+		return
+	}
+
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Methods", "POST")
+	w.Header().Set("Access-Control-Allow-Headers", "Authorization")
+
+	entries, err := os.ReadDir(os.Getenv("RAILWAY_VOLUME_MOUNT_PATH") + "/uploaded_images")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	for _, e := range entries {
+		err := os.Remove(os.Getenv("RAILWAY_VOLUME_MOUNT_PATH") + "/uploaded_images/" + e.Name())
+		if err != nil {
+			fmt.Println(os.Getenv("RAILWAY_VOLUME_MOUNT_PATH")+"/uploaded_images/"+e.Name()+"could not be deleted", err.Error())
+		}
+	}
+}
+
 func setupRoutes(port string, db *sql.DB) {
 	if port == "" {
 		port = "3000"
