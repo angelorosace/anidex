@@ -153,6 +153,7 @@ func setupRoutes(port string, db *sql.DB) {
 
 	http.HandleFunc("/", getStatus)
 	http.HandleFunc("/getFiles", getFiles)
+	http.HandleFunc("/remove", removeFiles)
 	err := http.ListenAndServe("0.0.0.0:"+port, nil)
 	if err != nil {
 		fmt.Println("Server error:", err)
