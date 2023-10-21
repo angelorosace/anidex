@@ -258,7 +258,10 @@ func DeleteAnimal(w http.ResponseWriter, r *http.Request) {
 	//retrieve DB from context
 	db := r.Context().Value("db").(*sql.DB)
 
-	stmt, err := db.Prepare("Delete from animals where id = " + idToDelete)
+	stmt, err := db.Prepare("DELETE FROM animals WHERE id = " + idToDelete)
+
+	fmt.Println("DELETE FROM animals WHERE id = " + idToDelete)
+
 	if err != nil {
 		res, err := responses.CustomResponse(w, nil, "myslq produced an error", http.StatusInternalServerError, err.Error())
 		if err != nil {
