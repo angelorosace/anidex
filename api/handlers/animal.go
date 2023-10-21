@@ -258,7 +258,7 @@ func DeleteAnimal(w http.ResponseWriter, r *http.Request) {
 	db := r.Context().Value("db").(*sql.DB)
 
 	//save data in mysql
-	stmt, err := db.Prepare("DELETE FROM animals WHERE id=" + idToDelete)
+	stmt, err := db.Prepare("DELETE FROM animals WHERE id IS " + idToDelete)
 	if err != nil {
 		res, err := responses.CustomResponse(w, nil, "myslq produced an error", http.StatusInternalServerError, err.Error())
 		if err != nil {
