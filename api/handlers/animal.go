@@ -228,8 +228,9 @@ func DeleteAnimal(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Access-Control-Allow-Headers", "Authorization")
 
 	idToDelete := r.URL.Query().Get("id")
+	photosToDelete := r.URL.Query().Get("photos")
 
-	if idToDelete == "" {
+	if idToDelete == "" || photosToDelete == "" {
 		resp, err := responses.MissingURLParametersResponse(w)
 		if err != nil {
 			http.Error(w, "", http.StatusBadGateway)
@@ -257,8 +258,7 @@ func DeleteAnimal(w http.ResponseWriter, r *http.Request) {
 	//retrieve DB from context
 	db := r.Context().Value("db").(*sql.DB)
 
-	//save data in mysql
-	stmt, err := db.Prepare("DELETE FROM animals WHERE id IS " + idToDelete)
+	stmt, err := db.Prepare("Delete from animals where id = " + idToDelete)
 	if err != nil {
 		res, err := responses.CustomResponse(w, nil, "myslq produced an error", http.StatusInternalServerError, err.Error())
 		if err != nil {
@@ -269,7 +269,15 @@ func DeleteAnimal(w http.ResponseWriter, r *http.Request) {
 	}
 	defer stmt.Close()
 
-	res, err := responses.CustomResponse(w, nil, "Animal Succesfully deleted", http.StatusOK, "")
+	photos := strings.Split(photosToDelete, ",")
+	for _, e := range photos {
+		err := os.Remove(os.Getenv("RAILWAY_VOLUME_MOUNT_PATH") + "/uploaded_images/" + e)
+		if err != nil {
+			fmt.Println(os.Getenv("RAILWAY_VOLUME_MOUNT_PATH")+"/uploaded_images/"+e+"could not be deleted", err.Error())
+		}
+	}
+
+	res, err := responses.CustomResponse(w, nil, "Animal "+idToDelete+" Succesfully deleted", http.StatusOK, "")
 	w.Write(res)
 }
 
