@@ -206,11 +206,11 @@ func (ar *AnimalRequest) buildAnimalRequest(m *multipart.Form) error {
 }
 
 func CDAnimal(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS") // Add DELETE to the allowed methods
+	w.Header().Set("Access-Control-Allow-Headers", "Authorization, Content-Type")
 	// Check if it's an OPTIONS request
 	if r.Method == http.MethodOptions {
-		w.Header().Set("Access-Control-Allow-Origin", "*")
-		w.Header().Set("Access-Control-Allow-Methods", "GET")
-		w.Header().Set("Access-Control-Allow-Headers", "Authorization")
 		w.WriteHeader(http.StatusOK)
 		return
 	}
@@ -223,17 +223,8 @@ func CDAnimal(w http.ResponseWriter, r *http.Request) {
 }
 
 func DeleteAnimal(w http.ResponseWriter, r *http.Request) {
-	// Check if it's an OPTIONS request
-	if r.Method == http.MethodOptions {
-		w.Header().Set("Access-Control-Allow-Origin", "*")
-		w.Header().Set("Access-Control-Allow-Methods", "GET")
-		w.Header().Set("Access-Control-Allow-Headers", "Authorization")
-		w.WriteHeader(http.StatusOK)
-		return
-	}
-
 	w.Header().Set("Access-Control-Allow-Origin", "*")
-	w.Header().Set("Access-Control-Allow-Methods", "POST")
+	w.Header().Set("Access-Control-Allow-Methods", "DELETE")
 	w.Header().Set("Access-Control-Allow-Headers", "Authorization")
 
 	idToDelete := r.URL.Query().Get("id")
@@ -283,15 +274,6 @@ func DeleteAnimal(w http.ResponseWriter, r *http.Request) {
 }
 
 func CreateAnimal(w http.ResponseWriter, r *http.Request) {
-	// Check if it's an OPTIONS request
-	if r.Method == http.MethodOptions {
-		w.Header().Set("Access-Control-Allow-Origin", "*")
-		w.Header().Set("Access-Control-Allow-Methods", "GET")
-		w.Header().Set("Access-Control-Allow-Headers", "Authorization")
-		w.WriteHeader(http.StatusOK)
-		return
-	}
-
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Access-Control-Allow-Methods", "POST")
 	w.Header().Set("Access-Control-Allow-Headers", "Authorization")
