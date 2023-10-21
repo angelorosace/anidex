@@ -271,9 +271,9 @@ func DeleteAnimal(w http.ResponseWriter, r *http.Request) {
 
 	photos := strings.Split(photosToDelete, ",")
 	for _, e := range photos {
-		err := os.Remove(os.Getenv("RAILWAY_VOLUME_MOUNT_PATH") + "/uploaded_images/" + e)
+		err := os.Remove(os.Getenv("RAILWAY_VOLUME_MOUNT_PATH") + "/uploaded_images" + e)
 		if err != nil {
-			fmt.Println(os.Getenv("RAILWAY_VOLUME_MOUNT_PATH")+"/uploaded_images/"+e+"could not be deleted", err.Error())
+			fmt.Println(os.Getenv("RAILWAY_VOLUME_MOUNT_PATH")+"/uploaded_images"+e+"could not be deleted", err.Error())
 		}
 	}
 
