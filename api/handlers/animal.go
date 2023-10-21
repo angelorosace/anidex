@@ -258,10 +258,7 @@ func DeleteAnimal(w http.ResponseWriter, r *http.Request) {
 	//retrieve DB from context
 	db := r.Context().Value("db").(*sql.DB)
 
-	stmt, err := db.Prepare("DELETE FROM animals WHERE id = " + idToDelete)
-
-	fmt.Println("DELETE FROM animals WHERE id = " + idToDelete)
-
+	stmt, err := db.Prepare("DELETE FROM animals WHERE id = ?")
 	if err != nil {
 		res, err := responses.CustomResponse(w, nil, "myslq produced an error", http.StatusInternalServerError, err.Error())
 		if err != nil {
@@ -271,6 +268,16 @@ func DeleteAnimal(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	defer stmt.Close()
+
+	_, err = stmt.Exec(idToDelete)
+	if err != nil {
+		res, err := responses.CustomResponse(w, nil, "myslq produced an error", http.StatusInternalServerError, err.Error())
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+		}
+		w.Write(res)
+		return
+	}
 
 	photos := strings.Split(photosToDelete, ",")
 	for _, e := range photos {
