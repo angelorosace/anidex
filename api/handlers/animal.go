@@ -205,6 +205,83 @@ func (ar *AnimalRequest) buildAnimalRequest(m *multipart.Form) error {
 
 }
 
+func CDAnimal(w http.ResponseWriter, r *http.Request) {
+	// Check if it's an OPTIONS request
+	if r.Method == http.MethodOptions {
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Access-Control-Allow-Methods", "GET")
+		w.Header().Set("Access-Control-Allow-Headers", "Authorization")
+		w.WriteHeader(http.StatusOK)
+		return
+	}
+	if r.Method == http.MethodDelete {
+		DeleteAnimal(w, r)
+	}
+	if r.Method == http.MethodPost {
+		CreateAnimal(w, r)
+	}
+}
+
+func DeleteAnimal(w http.ResponseWriter, r *http.Request) {
+	// Check if it's an OPTIONS request
+	if r.Method == http.MethodOptions {
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Access-Control-Allow-Methods", "GET")
+		w.Header().Set("Access-Control-Allow-Headers", "Authorization")
+		w.WriteHeader(http.StatusOK)
+		return
+	}
+
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Methods", "POST")
+	w.Header().Set("Access-Control-Allow-Headers", "Authorization")
+
+	idToDelete := r.URL.Query().Get("id")
+
+	if idToDelete == "" {
+		resp, err := responses.MissingURLParametersResponse(w)
+		if err != nil {
+			http.Error(w, "", http.StatusBadGateway)
+		}
+		w.Write(resp)
+		return
+	}
+
+	// verify token
+	authHeader := r.Header.Get("Authorization")
+
+	// Check if the "Authorization" header is set
+	if authHeader == "" {
+		// Handle the case where the header is not provided
+		http.Error(w, "Authorization header is missing", http.StatusUnauthorized)
+		return
+	}
+
+	_, e := helpers.VerifyToken(authHeader)
+	if e != nil {
+		responses.CustomResponse(w, nil, e.Error(), http.StatusUnauthorized, e.Error())
+		return
+	}
+
+	//retrieve DB from context
+	db := r.Context().Value("db").(*sql.DB)
+
+	//save data in mysql
+	stmt, err := db.Prepare("DELETE FROM animals WHERE id=" + idToDelete)
+	if err != nil {
+		res, err := responses.CustomResponse(w, nil, "myslq produced an error", http.StatusInternalServerError, err.Error())
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+		}
+		w.Write(res)
+		return
+	}
+	defer stmt.Close()
+
+	res, err := responses.CustomResponse(w, nil, "Animal Succesfully deleted", http.StatusOK, "")
+	w.Write(res)
+}
+
 func CreateAnimal(w http.ResponseWriter, r *http.Request) {
 	// Check if it's an OPTIONS request
 	if r.Method == http.MethodOptions {
