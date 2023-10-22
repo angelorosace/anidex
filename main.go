@@ -11,6 +11,7 @@ import (
 	"anidex_api/api/helpers"
 	middleware "anidex_api/api/middleware"
 	DB "anidex_api/db"
+	"anidex_api/http/responses"
 )
 
 func getStatus(w http.ResponseWriter, r *http.Request) {
@@ -36,12 +37,12 @@ func getStatus(w http.ResponseWriter, r *http.Request) {
 
 	_, e := helpers.VerifyToken(authHeader)
 	if e != nil {
-		if e.Error() == "Token is expired" {
+		res, err := responses.CustomResponse(w, nil, e.Error(), http.StatusUnauthorized, e.Error())
+		if err != nil {
 			http.Error(w, e.Error(), http.StatusUnauthorized)
 			return
 		}
-		// Handle the case where the header is not provided
-		http.Error(w, "Invalid Signature", http.StatusUnauthorized)
+		w.Write(res)
 		return
 	}
 	fmt.Println("OK")
@@ -73,12 +74,12 @@ func getFiles(w http.ResponseWriter, r *http.Request) {
 
 	_, e := helpers.VerifyToken(authHeader)
 	if e != nil {
-		if e.Error() == "Token is expired" {
+		res, err := responses.CustomResponse(w, nil, e.Error(), http.StatusUnauthorized, e.Error())
+		if err != nil {
 			http.Error(w, e.Error(), http.StatusUnauthorized)
 			return
 		}
-		// Handle the case where the header is not provided
-		http.Error(w, "Invalid Signature", http.StatusUnauthorized)
+		w.Write(res)
 		return
 	}
 
@@ -105,6 +106,27 @@ func removeFiles(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Access-Control-Allow-Methods", "POST")
 	w.Header().Set("Access-Control-Allow-Headers", "Authorization")
+
+	// verify token
+	authHeader := r.Header.Get("Authorization")
+
+	// Check if the "Authorization" header is set
+	if authHeader == "" {
+		// Handle the case where the header is not provided
+		http.Error(w, "Authorization header is missing", http.StatusUnauthorized)
+		return
+	}
+
+	_, e := helpers.VerifyToken(authHeader)
+	if e != nil {
+		res, err := responses.CustomResponse(w, nil, e.Error(), http.StatusUnauthorized, e.Error())
+		if err != nil {
+			http.Error(w, e.Error(), http.StatusUnauthorized)
+			return
+		}
+		w.Write(res)
+		return
+	}
 
 	entries, err := os.ReadDir(os.Getenv("RAILWAY_VOLUME_MOUNT_PATH") + "/uploaded_images")
 	if err != nil {

@@ -251,7 +251,12 @@ func DeleteAnimal(w http.ResponseWriter, r *http.Request) {
 
 	_, e := helpers.VerifyToken(authHeader)
 	if e != nil {
-		responses.CustomResponse(w, nil, e.Error(), http.StatusUnauthorized, e.Error())
+		res, err := responses.CustomResponse(w, nil, e.Error(), http.StatusUnauthorized, e.Error())
+		if err != nil {
+			http.Error(w, e.Error(), http.StatusUnauthorized)
+			return
+		}
+		w.Write(res)
 		return
 	}
 
@@ -310,7 +315,12 @@ func CreateAnimal(w http.ResponseWriter, r *http.Request) {
 
 	_, e := helpers.VerifyToken(authHeader)
 	if e != nil {
-		responses.CustomResponse(w, nil, e.Error(), http.StatusUnauthorized, e.Error())
+		res, err := responses.CustomResponse(w, nil, e.Error(), http.StatusUnauthorized, e.Error())
+		if err != nil {
+			http.Error(w, e.Error(), http.StatusUnauthorized)
+			return
+		}
+		w.Write(res)
 		return
 	}
 
@@ -384,7 +394,12 @@ func GetAnimals(w http.ResponseWriter, r *http.Request) {
 
 	_, e := helpers.VerifyToken(authHeader)
 	if e != nil {
-		responses.CustomResponse(w, nil, e.Error(), http.StatusUnauthorized, e.Error())
+		res, err := responses.CustomResponse(w, nil, e.Error(), http.StatusUnauthorized, e.Error())
+		if err != nil {
+			http.Error(w, e.Error(), http.StatusUnauthorized)
+			return
+		}
+		w.Write(res)
 		return
 	}
 
