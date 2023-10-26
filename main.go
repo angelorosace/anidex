@@ -157,7 +157,7 @@ func setupRoutes(port string, db *sql.DB) {
 
 	} else {
 		//Animal
-		http.HandleFunc("/animal", middleware.WithDatabase(db, handlers.CDAnimal))
+		http.HandleFunc("/animal", middleware.WithDatabase(db, handlers.CUDAnimal))
 		http.HandleFunc("/animals", middleware.WithDatabase(db, handlers.GetAnimals))
 
 		//Images

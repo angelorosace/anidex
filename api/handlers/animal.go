@@ -35,6 +35,21 @@ type AnimalRequest struct {
 	Description string `json:"description"`
 }
 
+type AnimalUpdateRequest struct {
+	Id          string `json:"id"`
+	Category    string `json:"category"`
+	Name        string `json:"name"`
+	Taxonomy    string `json:"taxonomy"`
+	Etymology   string `json:"etymology"`
+	Geo         string `json:"geo"`
+	Migration   string `json:"migration"`
+	Habitat     string `json:"habitat"`
+	Dimensions  string `json:"dimensions"`
+	Ds          string `json:"ds"`
+	Diet        string `json:"diet"`
+	Description string `json:"description"`
+}
+
 type Animal struct {
 	ID          int    `json:"id"`
 	Photos      string `json:"photo"`
@@ -205,7 +220,7 @@ func (ar *AnimalRequest) buildAnimalRequest(m *multipart.Form) error {
 
 }
 
-func CDAnimal(w http.ResponseWriter, r *http.Request) {
+func CUDAnimal(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS") // Add DELETE to the allowed methods
 	w.Header().Set("Access-Control-Allow-Headers", "Authorization, Content-Type")
@@ -219,6 +234,9 @@ func CDAnimal(w http.ResponseWriter, r *http.Request) {
 	}
 	if r.Method == http.MethodPost {
 		CreateAnimal(w, r)
+	}
+	if r.Method == http.MethodPut {
+		UpdateAnimal(w, r)
 	}
 }
 
@@ -365,6 +383,76 @@ func CreateAnimal(w http.ResponseWriter, r *http.Request) {
 
 	w.Write(animalRequestSuccessResponse(w, animalRequest))
 
+}
+
+func UpdateAnimal(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Methods", "PUT")
+	w.Header().Set("Access-Control-Allow-Headers", "Authorization")
+	w.Header().Set("Content-Type", "application/json")
+
+	// verify token
+	authHeader := r.Header.Get("Authorization")
+
+	// Check if the "Authorization" header is set
+	if authHeader == "" {
+		// Handle the case where the header is not provided
+		http.Error(w, "Authorization header is missing", http.StatusUnauthorized)
+		return
+	}
+
+	_, e := helpers.VerifyToken(authHeader)
+	if e != nil {
+		res, err := responses.CustomResponse(w, nil, e.Error(), http.StatusUnauthorized, e.Error())
+		if err != nil {
+			http.Error(w, e.Error(), http.StatusUnauthorized)
+			return
+		}
+		w.Write(res)
+		return
+	}
+
+	var animalUpdateRequest AnimalUpdateRequest
+	decoder := json.NewDecoder(r.Body)
+	if err := decoder.Decode(&animalUpdateRequest); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	//retrieve DB from context
+	db := r.Context().Value("db").(*sql.DB)
+
+	//save data in mysql
+	stmt, err := db.Prepare("UPDATE animals SET name=?,taxonomy=?,etymology=?,geo=?,migration=?,habitat=?,dimensions=?,ds=?,diet=?,description=?,category=? WHERE id=?")
+	if err != nil {
+		w.Write(animalRequestErrorResponse(w, err))
+		return
+	}
+	defer stmt.Close()
+
+	_, err = stmt.Exec(
+		animalUpdateRequest.Name,
+		animalUpdateRequest.Taxonomy,
+		animalUpdateRequest.Etymology,
+		animalUpdateRequest.Geo,
+		animalUpdateRequest.Migration,
+		animalUpdateRequest.Habitat,
+		animalUpdateRequest.Dimensions,
+		animalUpdateRequest.Ds,
+		animalUpdateRequest.Diet,
+		animalUpdateRequest.Description,
+		animalUpdateRequest.Category,
+		animalUpdateRequest.Id,
+	)
+
+	if err != nil {
+		w.Write(animalRequestErrorResponse(w, err))
+		return
+	}
+
+	resp, err := responses.CustomResponse(w, nil, fmt.Sprintf("Animal %s corerctly updated", animalUpdateRequest.Id), http.StatusOK, "")
+
+	w.Write(resp)
 }
 
 func GetAnimals(w http.ResponseWriter, r *http.Request) {
