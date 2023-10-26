@@ -36,7 +36,7 @@ type AnimalRequest struct {
 }
 
 type AnimalUpdateRequest struct {
-	Id          string `json:"id"`
+	Id          int    `json:"id"`
 	Category    string `json:"category"`
 	Name        string `json:"name"`
 	Taxonomy    string `json:"taxonomy"`
@@ -450,7 +450,7 @@ func UpdateAnimal(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	resp, err := responses.CustomResponse(w, nil, fmt.Sprintf("Animal %s corerctly updated", animalUpdateRequest.Id), http.StatusOK, "")
+	resp, err := responses.CustomResponse(w, nil, fmt.Sprintf("Animal %d corerctly updated", animalUpdateRequest.Id), http.StatusOK, "")
 
 	w.Write(resp)
 }
